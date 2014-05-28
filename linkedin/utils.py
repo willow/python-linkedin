@@ -41,10 +41,10 @@ def enum(enum_type='enum', base_classes=None, methods=None, **attrs):
 
 
 def to_utf8(st):
-    if isinstance(st, str):
-        return st.encode('utf-8')
+    if isinstance(st, bytes):
+        return st.decode('utf-8')
     else:
-        return bytes(st)
+        return st
 
 
 def raise_for_error(response):
