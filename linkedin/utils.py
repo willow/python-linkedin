@@ -3,9 +3,9 @@ import requests
 from .exceptions import LinkedInError
 
 try:
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 
 try:
     import simplejson as json
@@ -31,7 +31,7 @@ def enum(enum_type='enum', base_classes=None, methods=None, **attrs):
         methods = {}
 
     base_classes = base_classes + (object,)
-    for k, v in methods.iteritems():
+    for k, v in methods.items():
         methods[k] = classmethod(v)
 
     attrs['enums'] = attrs.copy()
@@ -41,7 +41,7 @@ def enum(enum_type='enum', base_classes=None, methods=None, **attrs):
 
 
 def to_utf8(st):
-    if isinstance(st, unicode):
+    if isinstance(st, str):
         return st.encode('utf-8')
     else:
         return bytes(st)
@@ -50,7 +50,7 @@ def to_utf8(st):
 def raise_for_error(response):
     try:
         response.raise_for_status()
-    except (requests.HTTPError, requests.ConnectionError), error:
+    except (requests.HTTPError, requests.ConnectionError) as error:
         try:
             if len(response.content) == 0:
                 # There is nothing we can do here since LinkedIn has neither sent

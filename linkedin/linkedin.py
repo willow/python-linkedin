@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import requests
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import random
 import hashlib
 import contextlib
@@ -93,7 +93,7 @@ class LinkedInAuthentication(object):
               'redirect_uri': self.redirect_uri}
         # urlencode uses quote_plus when encoding the query string so,
         # we ought to be encoding the qs by on our own.
-        qsl = ['%s=%s' % (urllib.quote(k), urllib.quote(v)) for k, v in qd.items()]
+        qsl = ['%s=%s' % (urllib.parse.quote(k), urllib.parse.quote(v)) for k, v in list(qd.items())]
         return '%s?%s' % (self.AUTHORIZATION_URL, '&'.join(qsl))
 
     @property
@@ -123,7 +123,7 @@ class LinkedInSelector(object):
     def parse(cls, selector):
         with contextlib.closing(StringIO()) as result:
             if type(selector) == dict:
-                for k, v in selector.items():
+                for k, v in list(selector.items()):
                     result.write('%s:(%s)' % (to_utf8(k), cls.parse(v)))
             elif type(selector) in (list, tuple):
                 result.write(','.join(map(cls.parse, selector)))
@@ -169,7 +169,7 @@ class LinkedInApplication(object):
         if member_id:
             url = '%s/id=%s' % (ENDPOINTS.PEOPLE, str(member_id))
         elif member_url:
-            url = '%s/url=%s' % (ENDPOINTS.PEOPLE, urllib.quote_plus(member_url))
+            url = '%s/url=%s' % (ENDPOINTS.PEOPLE, urllib.parse.quote_plus(member_url))
         else:
             url = '%s/~' % ENDPOINTS.PEOPLE
         if selectors:
@@ -195,7 +195,7 @@ class LinkedInApplication(object):
                 url = '%s/id=%s/picture-urls::(original)' % (ENDPOINTS.PEOPLE, str(member_id))
         elif member_url:
             url = '%s/url=%s/picture-urls::(original)' % (ENDPOINTS.PEOPLE,
-                                                          urllib.quote_plus(member_url))
+                                                          urllib.parse.quote_plus(member_url))
         else:
             url = '%s/~/picture-urls::(original)' % ENDPOINTS.PEOPLE
 
@@ -209,7 +209,7 @@ class LinkedInApplication(object):
             url = '%s/id=%s/connections' % (ENDPOINTS.PEOPLE, str(member_id))
         elif member_url:
             url = '%s/url=%s/connections' % (ENDPOINTS.PEOPLE,
-                                             urllib.quote_plus(member_url))
+                                             urllib.parse.quote_plus(member_url))
         else:
             url = '%s/~/connections' % ENDPOINTS.PEOPLE
         if selectors:
@@ -225,7 +225,7 @@ class LinkedInApplication(object):
             url = '%s/id=%s/group-memberships' % (ENDPOINTS.PEOPLE, str(member_id))
         elif member_url:
             url = '%s/url=%s/group-memberships' % (ENDPOINTS.PEOPLE,
-                                                   urllib.quote_plus(member_url))
+                                                   urllib.parse.quote_plus(member_url))
         else:
             url = '%s/~/group-memberships' % ENDPOINTS.PEOPLE
 
@@ -291,7 +291,7 @@ class LinkedInApplication(object):
         url = '%s/%s/relation-to-viewer/is-liked' % (ENDPOINTS.POSTS, str(post_id))
         try:
             self.make_request('PUT', url, data=json.dumps(action))
-        except (requests.ConnectionError, requests.HTTPError), error:
+        except (requests.ConnectionError, requests.HTTPError) as error:
             raise LinkedInError(error.message)
         else:
             return True
@@ -303,7 +303,7 @@ class LinkedInApplication(object):
         url = '%s/%s/comments' % (ENDPOINTS.POSTS, str(post_id))
         try:
             self.make_request('POST', url, data=json.dumps(post))
-        except (requests.ConnectionError, requests.HTTPError), error:
+        except (requests.ConnectionError, requests.HTTPError) as error:
             raise LinkedInError(error.message)
         else:
             return True
@@ -320,7 +320,7 @@ class LinkedInApplication(object):
         identifiers = []
         url = ENDPOINTS.COMPANIES
         if company_ids:
-            identifiers += map(str, company_ids)
+            identifiers += list(map(str, company_ids))
 
         if universal_names:
             identifiers += ['universal-name=%s' % un for un in universal_names]
