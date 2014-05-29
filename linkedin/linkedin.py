@@ -102,7 +102,7 @@ class LinkedInAuthentication(object):
 
     def _make_new_state(self):
         return hashlib.md5(
-            '%s%s' % (random.randrange(0, 2**63), self.secret)).hexdigest()
+          ('%s%s' % (random.randrange(0, 2**63), self.secret)).encode('utf-8')).hexdigest()
 
     def get_access_token(self, timeout=60):
         assert self.authorization_code, 'You must first get the authorization code'
